@@ -1,0 +1,28 @@
+# .NET Core / ASP.NET Build Folders
+bin/
+obj/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE Configurations (VS Code, Visual Studio, etc.)
+.vscode/
+.vs/
+.idea/
+
+# Local Configuration & Secrets (Don't push your Supabase DB passwords to Git!)
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
