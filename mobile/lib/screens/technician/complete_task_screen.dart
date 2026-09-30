@@ -2,16 +2,25 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/assignment_provider.dart';
 
 class CompleteTaskScreen extends StatefulWidget {
-  const CompleteTaskScreen({super.key});
+  final int assignmentId;
+
+  const CompleteTaskScreen({
+    super.key,
+    required this.assignmentId,
+  });
 
   @override
   State<CompleteTaskScreen> createState() =>
       _CompleteTaskScreenState();
 }
 
-class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
+class _CompleteTaskScreenState
+    extends State<CompleteTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   final _noteController = TextEditingController();
 
@@ -40,7 +49,8 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
           child: Wrap(
             children: [
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined),
+                leading:
+                    const Icon(Icons.camera_alt_outlined),
                 title: const Text('Take Photo'),
                 onTap: () {
                   Navigator.pop(context);
@@ -48,8 +58,12 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Choose from Gallery'),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                ),
+                title: const Text(
+                  'Choose from Gallery',
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
@@ -62,14 +76,10 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  void _completeTask() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _completeTask() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
     if (_afterImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,17 +92,50 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Task completion ready for API submission.',
-        ),
-      ),
+    final provider =
+        context.read<AssignmentProvider>();
+
+    final success = await provider.completeTask(
+      assignmentId: widget.assignmentId,
+      completionNote: _noteController.text.trim(),
+      afterImage: _afterImage!,
     );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Task completed successfully.',
+          ),
+        ),
+      );
+
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            provider.errorMessage ??
+                'Unable to complete task.',
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider =
+        context.watch<AssignmentProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Complete Task'),
@@ -102,7 +145,8 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch,
             children: [
               const Text(
                 'Completion Details',
@@ -120,10 +164,12 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Completion Note',
                   alignLabelWithHint: true,
-                  hintText: 'Describe the work completed...',
+                  hintText:
+                      'Describe the work completed...',
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null ||
+                      value.trim().isEmpty) {
                     return 'Please enter a completion note';
                   }
 
@@ -134,8 +180,11 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
               const SizedBox(height: 20),
 
               OutlinedButton.icon(
-                onPressed: _showImageOptions,
-                icon: const Icon(Icons.add_a_photo_outlined),
+                onPressed: provider.isLoading
+                    ? null
+                    : _showImageOptions,
+                icon:
+                    const Icon(Icons.add_a_photo_outlined),
                 label: Text(
                   _afterImage == null
                       ? 'Add After Photo'
@@ -146,7 +195,8 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
               if (_afterImage != null) ...[
                 const SizedBox(height: 16),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(12),
                   child: Image.file(
                     File(_afterImage!.path),
                     height: 200,
@@ -156,22 +206,41 @@ class _CompleteTaskScreenState extends State<CompleteTaskScreen> {
                 ),
                 const SizedBox(height: 8),
                 TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _afterImage = null;
-                    });
-                  },
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Remove Photo'),
+                  onPressed: provider.isLoading
+                      ? null
+                      : () {
+                          setState(() {
+                            _afterImage = null;
+                          });
+                        },
+                  icon:
+                      const Icon(Icons.delete_outline),
+                  label:
+                      const Text('Remove Photo'),
                 ),
               ],
 
               const SizedBox(height: 24),
 
               ElevatedButton.icon(
-                onPressed: _completeTask,
-                icon: const Icon(Icons.check_circle),
-                label: const Text('Mark as Completed'),
+                onPressed: provider.isLoading
+                    ? null
+                    : _completeTask,
+                icon: provider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child:
+                            CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Icon(Icons.check_circle),
+                label: Text(
+                  provider.isLoading
+                      ? 'Completing...'
+                      : 'Mark as Completed',
+                ),
               ),
             ],
           ),

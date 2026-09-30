@@ -17,7 +17,9 @@ class Assignment {
     this.issue,
   });
 
-  factory Assignment.fromJson(Map<String, dynamic> json) {
+  factory Assignment.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return Assignment(
       id: json['id'],
       issueId: json['issueId'],
@@ -27,6 +29,19 @@ class Assignment {
       issue: json['issue'] != null
           ? Issue.fromJson(json['issue'])
           : null,
+    );
+  }
+
+  Assignment copyWith({
+    String? status,
+  }) {
+    return Assignment(
+      id: id,
+      issueId: issueId,
+      technicianId: technicianId,
+      status: status ?? this.status,
+      aiReason: aiReason,
+      issue: issue,
     );
   }
 }

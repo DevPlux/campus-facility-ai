@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'providers/assignment_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/issue_provider.dart';
-import 'screens/technician/technician_home_screen.dart';
+import 'screens/auth/login_screen.dart';
 
 void main() {
   runApp(const CampusFacilityApp());
@@ -18,18 +19,21 @@ class CampusFacilityApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-      ChangeNotifierProvider(
+        ChangeNotifierProvider(
           create: (_) => AuthProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => IssueProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AssignmentProvider(),
         ),
       ],
       child: MaterialApp(
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const TechnicianHomeScreen(),
+        home: const LoginScreen(),
       ),
     );
   }

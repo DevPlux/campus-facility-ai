@@ -1,16 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
+import '../auth/login_screen.dart';
 import 'my_issues_screen.dart';
 import 'report_issue_screen.dart';
 
 class ReporterHomeScreen extends StatelessWidget {
   const ReporterHomeScreen({super.key});
 
+  Future<void> _logout(BuildContext context) async {
+    final authProvider = context.read<AuthProvider>();
+
+    await authProvider.logout();
+
+    if (!context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Campus Facility AI'),
+        actions: [
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: () => _logout(context),
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -27,7 +53,9 @@ class ReporterHomeScreen extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Report and track campus facility issues.',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(
+                color: Colors.grey.shade600,
+              ),
             ),
             const SizedBox(height: 30),
 
@@ -90,10 +118,15 @@ class _ActionCard extends StatelessWidget {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
         ),
         subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 18),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          size: 18,
+        ),
         onTap: onTap,
       ),
     );
