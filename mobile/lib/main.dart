@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/reporter/reporter_home_screen.dart';
 
 void main() {
   runApp(const CampusFacilityApp());
@@ -25,7 +25,7 @@ class CampusFacilityApp extends StatelessWidget {
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const LoginScreen(),
+        home: const ReporterHomeScreen(),
       ),
     );
   }
