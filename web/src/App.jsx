@@ -1,27 +1,42 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import LoginPage from "./pages/LoginPage";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import DashboardPage from "./pages/DashboardPage";
-import IssuesPage from "./pages/IssuesPage";
 import IssueDetailsPage from "./pages/IssueDetailsPage";
+import IssuesPage from "./pages/IssuesPage";
+import LoginPage from "./pages/LoginPage";
 import TechniciansPage from "./pages/TechniciansPage";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
+      {/* Default */}
+
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+      {/* Public */}
 
       <Route path="/login" element={<LoginPage />} />
 
-      <Route path="/dashboard" element={<DashboardPage />} />
+      {/* Manager Protected Routes */}
 
-      <Route path="/issues" element={<IssuesPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
 
-      <Route path="/issues/:id" element={<IssueDetailsPage />} />
+          <Route path="/issues" element={<IssuesPage />} />
 
-      <Route path="/technicians" element={<TechniciansPage />} />
+          <Route path="/issues/:id" element={<IssueDetailsPage />} />
 
-      <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="/technicians" element={<TechniciansPage />} />
+        </Route>
+      </Route>
+
+      {/* Unknown Route */}
+
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
