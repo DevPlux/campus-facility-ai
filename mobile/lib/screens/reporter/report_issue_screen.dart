@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
+import 'package:provider/provider.dart';
+
+import '../../providers/issue_provider.dart';
+
 class ReportIssueScreen extends StatefulWidget {
   const ReportIssueScreen({super.key});
 
@@ -170,20 +174,76 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
 
               const SizedBox(height: 24),
 
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Form ready. API connection will be added next.',
-                        ),
-                      ),
-                    );
-                  }
+              Consumer<IssueProvider>(
+                builder: (context, issueProvider, child) {
+                  return ElevatedButton.icon(
+                    onPressed: issueProvider.isLoading
+                        ? null
+                        : () async {
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
+
+                            if (_beforeImage == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please add a photo of the issue.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+
+                            final success =
+                                await issueProvider.createIssue(
+                              title: _titleController.text.trim(),
+                              description:
+                                  _descriptionController.text.trim(),
+                              location:
+                                  _locationController.text.trim(),
+                              beforeImage: _beforeImage,
+                            );
+
+                            if (!context.mounted) return;
+
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Issue submitted successfully.',
+                                  ),
+                                ),
+                              );
+
+                              Navigator.pop(context);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    issueProvider.errorMessage ??
+                                        'Unable to submit issue.',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                    icon: issueProvider.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(Icons.send),
+                    label: Text(
+                      issueProvider.isLoading
+                          ? 'Submitting...'
+                          : 'Submit Issue',
+                    ),
+                  );
                 },
-                icon: const Icon(Icons.send),
-                label: const Text('Submit Issue'),
               ),
             ],
           ),
