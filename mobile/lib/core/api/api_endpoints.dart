@@ -2,7 +2,7 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // We will replace this with the actual ASP.NET Core backend address later.
-  static const String baseUrl = 'http://YOUR_BACKEND_IP:PORT/api';
+ static const String baseUrl = 'http://192.168.8.135:5066/api';
 
   // Authentication
   static const String login = '/auth/login';
