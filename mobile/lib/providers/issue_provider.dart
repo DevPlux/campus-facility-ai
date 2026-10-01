@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -51,8 +52,21 @@ class IssueProvider extends ChangeNotifier {
       _issues.insert(0, issue);
 
       return true;
-    } catch (_) {
-      _errorMessage = 'Unable to submit the issue.';
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final responseData = e.response?.data;
+
+      _errorMessage =
+          'HTTP STATUS: ${statusCode ?? 'NO STATUS'}\n\n'
+          'SERVER RESPONSE:\n'
+          '${responseData ?? e.message ?? 'No response received'}';
+
+      return false;
+    } catch (e) {
+      _errorMessage =
+          'APP ERROR:\n'
+          '$e';
+
       return false;
     } finally {
       _isLoading = false;

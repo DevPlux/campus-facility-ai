@@ -6,11 +6,11 @@ import 'api_endpoints.dart';
 class ApiClient {
   ApiClient._();
 
-    static final Dio dio = Dio(
+  static final Dio dio = Dio(
     BaseOptions(
       baseUrl: ApiEndpoints.baseUrl,
       connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 60),
+      receiveTimeout: const Duration(seconds: 10),
       headers: {
         'Accept': 'application/json',
       },
