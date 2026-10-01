@@ -22,11 +22,7 @@ import {
 
 import StatusBadge from "../components/StatusBadge";
 
-import {
-  analyzeIssue,
-  getIssueById,
-  recommendTechnician,
-} from "../services/issueService";
+import { getIssueById } from "../services/issueService";
 
 import {
   approveAssignment,
@@ -111,36 +107,22 @@ function IssueDetailsPage() {
     }
   };
 
-  const handleAnalyze = () =>
-    runAction(
-      "analyze",
-      () => analyzeIssue(id),
-      "AI analysis completed successfully.",
-    );
-
-  const handleRecommend = () =>
-    runAction(
-      "recommend",
-      () => recommendTechnician(id),
-      "Technician recommendation created.",
-    );
-
   const handleApprove = () => {
-    if (!issue?.assignment?.id) return;
+    if (!issue?.assignmentId) return;
 
     runAction(
       "approve",
-      () => approveAssignment(issue.assignment.id),
+      () => approveAssignment(issue.assignmentId),
       "Technician assignment approved.",
     );
   };
 
   const handleReject = () => {
-    if (!issue?.assignment?.id) return;
+    if (!issue?.assignmentId) return;
 
     runAction(
       "reject",
-      () => rejectAssignment(issue.assignment.id),
+      () => rejectAssignment(issue.assignmentId),
       "Technician assignment rejected.",
     );
   };
@@ -276,21 +258,7 @@ function IssueDetailsPage() {
           </Card>
 
           {/* AI */}
-          <Card
-            title="AI Issue Analysis"
-            icon={BrainCircuit}
-            action={
-              issue.status === "OPEN" ? (
-                <PrimaryButton
-                  loading={actionLoading === "analyze"}
-                  onClick={handleAnalyze}
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Run AI Analysis
-                </PrimaryButton>
-              ) : null
-            }
-          >
+          <Card title="AI Issue Analysis" icon={BrainCircuit}>
             {issue.aiSummary ? (
               <div className="rounded-lg border border-violet-100 bg-violet-50/60 p-4">
                 <div className="flex items-center gap-2">
@@ -322,21 +290,7 @@ function IssueDetailsPage() {
               technicians.
             </p>
 
-            {issue.status === "ANALYZED" && (
-              <button
-                onClick={handleRecommend}
-                disabled={actionLoading !== ""}
-                className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-slate-900 text-[11.5px] font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
-              >
-                <Sparkles className="h-4 w-4" />
-
-                {actionLoading === "recommend"
-                  ? "Finding technician..."
-                  : "Generate Recommendation"}
-              </button>
-            )}
-
-            {issue.assignment && (
+            {issue.assignmentId && (
               <div className="mt-4 rounded-lg border border-slate-200 p-4">
                 <p className="text-[9.5px] font-bold uppercase tracking-[0.1em] text-slate-400">
                   Recommended Technician
@@ -349,8 +303,8 @@ function IssueDetailsPage() {
 
                   <div>
                     <p className="text-[12px] font-semibold text-slate-800">
-                      {issue.assignment.technicianName ||
-                        `Technician #${issue.assignment.technicianId}`}
+                      {issue.technicianName ||
+                        `Technician #${issue.technicianId}`}
                     </p>
 
                     <p className="text-[10px] text-slate-400">
@@ -359,14 +313,14 @@ function IssueDetailsPage() {
                   </div>
                 </div>
 
-                {issue.assignment.aiReason && (
+                {issue.recommendationReason && (
                   <div className="mt-4 rounded-md bg-slate-50 p-3">
                     <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
                       Recommendation reason
                     </p>
 
                     <p className="mt-1.5 text-[10.5px] leading-5 text-slate-500">
-                      {issue.assignment.aiReason}
+                      {issue.recommendationReason}
                     </p>
                   </div>
                 )}
@@ -465,18 +419,6 @@ function EvidenceImage({ label, imageUrl }) {
         </div>
       )}
     </div>
-  );
-}
-
-function PrimaryButton({ children, onClick, loading }) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className="flex h-8 items-center gap-1.5 rounded-md bg-blue-600 px-3 text-[10.5px] font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-    >
-      {loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : children}
-    </button>
   );
 }
 
