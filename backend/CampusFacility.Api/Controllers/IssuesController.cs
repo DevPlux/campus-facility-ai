@@ -41,15 +41,29 @@ namespace CampusFacility.Api.Controllers
                 return BadRequest(new { success = false, message = "Invalid image file.", errors = new[] { "Image size cannot exceed 5 MB." } });
             }
 
-            var allowedContentTypes = new[] { "image/jpeg", "image/png" };
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var allowedContentTypes = new[]
+                {
+                    "image/jpeg",
+                    "image/png",
+                    "image/heic",
+                    "image/heif"
+                };
+
+                var allowedExtensions = new[]
+                {
+                    ".jpg",
+                    ".jpeg",
+                    ".png",
+                    ".heic",
+                    ".heif"
+                };
             
             var extension = Path.GetExtension(request.Image.FileName).ToLowerInvariant();
 
             if (!allowedContentTypes.Contains(request.Image.ContentType.ToLowerInvariant()) || 
                 !allowedExtensions.Contains(extension))
             {
-                return BadRequest(new { success = false, message = "Invalid image file.", errors = new[] { "Only JPG and PNG images are allowed." } });
+                return BadRequest(new { success = false, message = "Invalid image file.", errors = new[] { "Only JPG, PNG, HEIC and HEIF images are allowed." } });
             }
 
             var issueDto = await _issueService.CreateIssueAsync(reporterId, request);
