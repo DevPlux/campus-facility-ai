@@ -31,7 +31,9 @@ class AssignmentService {
   }) async {
     final formData = FormData.fromMap({
       'completionNote': completionNote,
-      'afterImage': await MultipartFile.fromFile(
+
+      // Backend expects the multipart field "Image"
+      'image': await MultipartFile.fromFile(
         afterImage.path,
         filename: afterImage.name,
       ),
@@ -40,6 +42,10 @@ class AssignmentService {
     await ApiClient.dio.patch(
       ApiEndpoints.completeAssignment(assignmentId),
       data: formData,
+      options: Options(
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
     );
   }
 }
