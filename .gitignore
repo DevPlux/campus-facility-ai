@@ -10,7 +10,6 @@ obj/
 *.sln.docstates
 
 # IDE Configurations (VS Code, Visual Studio, etc.)
-.vscode/
 .vs/
 .idea/
 
@@ -18,7 +17,6 @@ obj/
 appsettings.Development.json
 appsettings.Local.json
 secrets.json
-.env
 
 # OS generated files
 .DS_Store
@@ -26,3 +24,5 @@ Thumbs.db
 
 # Logs
 *.log
+config.bat
+node_modules

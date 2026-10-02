@@ -62,19 +62,6 @@ function LoginPage() {
     }
   };
 
-  const handleDevLogin = () => {
-    saveAuth("temporary-dev-token", {
-      id: 1,
-      name: "Test Manager",
-      email: "manager@test.com",
-      role: "MANAGER",
-    });
-
-    navigate("/dashboard", {
-      replace: true,
-    });
-  };
-
   return (
     <div className="grid min-h-screen bg-[#F7F8FA] lg:grid-cols-[1.05fr_0.95fr]">
       {/* LEFT */}
@@ -231,15 +218,6 @@ function LoginPage() {
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
-            </button>
-
-            {/* TEMPORARY */}
-            <button
-              type="button"
-              onClick={handleDevLogin}
-              className="h-11 w-full rounded-lg border border-slate-200 bg-white text-[11.5px] font-semibold text-slate-600 transition hover:bg-slate-50"
-            >
-              Continue as Manager (Development)
             </button>
           </form>
 
