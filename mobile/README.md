@@ -6,16 +6,40 @@ A new Flutter project.
 flutter create --org com.devplux --project-name campus_facility_mobile mobile
 ```
 
-## Getting Started
+## Pairing the mobile with Flutter project
 
-This project is a starting point for a Flutter application.
+```
+adb pair 192.168.8.183:43041
 
-A few resources to get you started if this is your first Flutter project:
+Enter pairing code: ..................
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+#### Show as "Successfully paired to 192.168............ : ......."
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### main Wireless debugging screen, look for:
+
+IP address & Port
+
+```
+adb connect 192.168....... : .....
+```
+
+### Check the devices:
+
+```
+adb devices
+```
+
+### Run the flutter app
+
+```
+flutter run -d 192.168........ : .......
+```
+
+## Once the app stuck with issues,
+
+```
+flutter clean
+flutter pub get
+flutter run
+```

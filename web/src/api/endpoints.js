@@ -1,21 +1,20 @@
 export const API_BASE_URL =
-    "http://YOUR_BACKEND_IP:PORT/api";
+    "http://localhost:5066/api";
 
 export const endpoints = {
+    // Authentication
     login: "/auth/login",
 
+    // Issues
     issues: "/issues",
 
-    issueById: (id) => `/issues/${id}`,
+    issueById: (id) =>
+        `/issues/${id}`,
 
-    analyzeIssue: (id) =>
-        `/issues/${id}/analyze`,
-
-    recommendTechnician: (id) =>
-        `/issues/${id}/recommend-technician`,
-
+    // Technicians
     technicians: "/technicians",
 
+    // Assignments
     approveAssignment: (id) =>
         `/assignments/${id}/approve`,
 

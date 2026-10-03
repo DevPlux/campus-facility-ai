@@ -36,8 +36,10 @@ class IssueService {
       'title': title,
       'description': description,
       'location': location,
+
+      // ASP.NET CreateIssueRequestDto expects Image
       if (beforeImage != null)
-        'beforeImage': await MultipartFile.fromFile(
+        'image': await MultipartFile.fromFile(
           beforeImage.path,
           filename: beforeImage.name,
         ),
@@ -46,6 +48,10 @@ class IssueService {
     final response = await ApiClient.dio.post(
       ApiEndpoints.createIssue,
       data: formData,
+      options: Options(
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 120),
+      ),
     );
 
     return Issue.fromJson(response.data);
