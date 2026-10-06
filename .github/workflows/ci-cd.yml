@@ -1,0 +1,170 @@
+name: Campus Facility AI - CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ============================================================
+  # CI 1 - ASP.NET Core Backend
+  # ============================================================
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend/CampusFacility.Api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build backend
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run backend tests
+        run: |
+          if find ../../ -name "*.Tests.csproj" -o -name "*Tests.csproj" | grep -q .; then
+            dotnet test --configuration Release --no-restore
+          else
+            echo "No backend test project currently exists - skipping dotnet test."
+          fi
+
+  # ============================================================
+  # CI 2 - React Web Application
+  # ============================================================
+  web:
+    name: React Web CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React application
+        run: npm run build
+
+  # ============================================================
+  # CI 3 - Flutter Mobile Application
+  # ============================================================
+  mobile:
+    name: Flutter Mobile CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.5"
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze Flutter project
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        run: |
+          if [ -d "test" ] && find test -name "*_test.dart" | grep -q .; then
+            flutter test
+          else
+            echo "No Flutter tests currently exist - skipping flutter test."
+          fi
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: campus-facility-ai-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+
+  # ============================================================
+  # CD - Deployment
+  # Runs only for main branch pushes after CI succeeds
+  # ============================================================
+  deploy:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+
+    needs:
+      - backend
+      - web
+      - mobile
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # Backend deployment
+      # --------------------------------------------------------
+      - name: Deploy Backend
+        if: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK != '' }}
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}"
+
+      # --------------------------------------------------------
+      # React deployment
+      # --------------------------------------------------------
+      - name: Deploy React Web
+        if: ${{ secrets.RENDER_WEB_DEPLOY_HOOK != '' }}
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${{ secrets.RENDER_WEB_DEPLOY_HOOK }}"
+
+      - name: Deployment summary
+        run: |
+          echo "======================================"
+          echo "Campus Facility AI deployment triggered"
+          echo "Backend CI: PASSED"
+          echo "React CI: PASSED"
+          echo "Flutter CI: PASSED"
+          echo "APK artifact: CREATED"
+          echo "======================================"
