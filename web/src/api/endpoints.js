@@ -1,5 +1,7 @@
+
 export const API_BASE_URL =
-    "http://localhost:5066/api";
+    import.meta.env.VITE_API_BASE_URL ||
+    "https://campus-facility-ai.onrender.com/api";
 
 export const endpoints = {
     // Authentication
@@ -7,9 +9,7 @@ export const endpoints = {
 
     // Issues
     issues: "/issues",
-
-    issueById: (id) =>
-        `/issues/${id}`,
+    issueById: (id) => `/issues/${id}`,
 
     // Technicians
     technicians: "/technicians",
