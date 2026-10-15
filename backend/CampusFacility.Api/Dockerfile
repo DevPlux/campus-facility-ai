@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY --from=build /app/publish ./
 
-ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_ENVIRONMENT=Production+
 
 EXPOSE 10000
 
